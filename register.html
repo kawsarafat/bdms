@@ -1,24 +1,23 @@
-<!-- public/register.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Register - Blood Donor App</title>
-  <link rel="stylesheet" href="../css/styles.css" />
+  <title>Admin Register - BDMS</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
-  <div class="form-container">
+<body class="auth-body">
+  <div class="auth-container">
     <h2>Admin Registration</h2>
-    <form id="registerForm">
+    <form id="registerForm" class="auth-form">
       <input type="text" id="name" placeholder="Full Name" required />
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
+      <input type="text" id="slug" placeholder="Page Slug (auto-generated, editable later)" disabled />
       <button type="submit">Register</button>
     </form>
     <p>Already have an account? <a href="login.html">Login here</a></p>
   </div>
-
-  <script type="module" src="../js/auth.js"></script>
+  <script type="module" src="js/register.js"></script>
 </body>
 </html>
