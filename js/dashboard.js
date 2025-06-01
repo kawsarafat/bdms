@@ -82,10 +82,10 @@ logoutBtn.addEventListener("click", async () => {
 // Generate form and list links
 function updateLinks(slug) {
   formLink.href = `/public/form.html?admin=${slug}`;
-  formLink.textContent = `${window.location.origin}/public/form.html?admin=${slug}`;
+  formLink.textContent = `${window.location.origin}/form.html?admin=${slug}`;
 
   listLink.href = `/public/u/${slug}.html`;
-  listLink.textContent = `${window.location.origin}/public/u/${slug}.html`;
+  listLink.textContent = `${window.location.origin}/u/${slug}.html`;
 }
 
 // Load pending donors
