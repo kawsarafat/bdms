@@ -1,47 +1,36 @@
 // js/form.js
-import { db } from "./firebase.js";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  where
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { db } from './firebase.js';
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const donorForm = document.getElementById("donorForm");
+// Extract slug from URL path (e.g. /kawsar -> "kawsar")
+const slug = window.location.pathname.split('/')[1] || 'default';
 
-donorForm.addEventListener("submit", async (e) => {
+document.getElementById('donorForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const location = document.getElementById("location").value.trim();
-  const blood = document.getElementById("blood").value;
-  const adminSlug = new URLSearchParams(window.location.search).get("admin");
+  const form = e.target;
+  const name = form.name.value.trim();
+  const blood = form.blood.value.trim().toUpperCase();
+  const district = form.district.value.trim();
+  const phone = form.phone.value.trim();
 
-  if (!adminSlug) {
-    alert("Invalid admin link!");
+  if (!name || !blood || !district || !phone) {
+    alert("Please fill in all fields.");
     return;
   }
 
-  const q = query(collection(db, "users"), where("slug", "==", adminSlug));
-  const querySnapshot = await getDocs(q);
-  if (querySnapshot.empty) {
-    alert("Invalid admin!");
-    return;
+  try {
+    await addDoc(collection(db, `donors_pending_${slug}`), {
+      name,
+      blood,
+      district,
+      phone,
+      createdAt: serverTimestamp()
+    });
+    alert("Thank you! Your request has been submitted for review.");
+    form.reset();
+  } catch (error) {
+    console.error("Error submitting donor:", error);
+    alert("Error submitting. Please try again.");
   }
-
-  const adminUid = querySnapshot.docs[0].id;
-
-  await addDoc(collection(db, "donors"), {
-    name,
-    phone,
-    location,
-    blood,
-    adminUid,
-    status: "pending"
-  });
-
-  alert("Donor information submitted successfully!");
-  donorForm.reset();
 });
