@@ -1,60 +1,84 @@
-<!-- public/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="../css/styles.css" />
+  <title>Admin Dashboard - BDMS</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-<body>
-  <div class="form-container">
-    <h2>Admin Dashboard</h2>
+<body class="dashboard-body">
 
-    <div id="adminInfo">
-      <p><strong>Admin:</strong> <span id="adminName">Loading...</span></p>
-      <p><strong>Slug:</strong> <span id="adminSlug">Loading...</span></p>
-      <input type="text" id="newSlug" placeholder="Update slug" />
-      <button id="updateSlugBtn">Update Slug</button>
-    </div>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>BDMS</h2>
+        <p id="adminEmail" class="admin-email">admin@email.com</p>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li data-tab="overview" class="active"><i class="fas fa-chart-line"></i> Overview</li>
+          <li data-tab="donors"><i class="fas fa-users"></i> Donor List</li>
+          <li data-tab="pending"><i class="fas fa-clock"></i> Pending Requests</li>
+          <li data-tab="add"><i class="fas fa-user-plus"></i> Add Donor</li>
+          <li data-tab="links"><i class="fas fa-link"></i> My Links</li>
+          <li data-tab="settings"><i class="fas fa-cog"></i> Settings</li>
+          <li id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</li>
+        </ul>
+      </nav>
+    </aside>
 
-    <div style="margin-top: 1rem;">
-      <p><strong>Form Link:</strong> <a id="formLink" href="#" target="_blank">Loading...</a></p>
-      <p><strong>Public List:</strong> <a id="listLink" href="#" target="_blank">Loading...</a></p>
-    </div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Overview -->
+      <section id="tab-overview" class="tab active">
+        <h2>Welcome to your Dashboard</h2>
+        <p>Use the sidebar to manage your donors and settings.</p>
+      </section>
 
-    <hr />
+      <!-- Donor List -->
+      <section id="tab-donors" class="tab">
+        <h2>Approved Donors</h2>
+        <div id="donorList" class="donor-list"></div>
+      </section>
 
-    <h3>Manually Add Donor</h3>
-    <form id="manualDonorForm">
-      <input type="text" id="manualName" placeholder="Name" required />
-      <input type="text" id="manualLocation" placeholder="Location" required />
-      <input type="text" id="manualPhone" placeholder="Phone" required />
-      <select id="manualBlood" required>
-        <option value="">Blood Group</option>
-        <option value="A+">A+</option>
-        <option value="A-">A-</option>
-        <option value="B+">B+</option>
-        <option value="B-">B-</option>
-        <option value="O+">O+</option>
-        <option value="O-">O-</option>
-        <option value="AB+">AB+</option>
-        <option value="AB-">AB-</option>
-      </select>
-      <button type="submit">Add Donor</button>
-    </form>
+      <!-- Pending Requests -->
+      <section id="tab-pending" class="tab">
+        <h2>Pending Donor Requests</h2>
+        <div id="pendingList" class="donor-list"></div>
+      </section>
 
-    <hr />
+      <!-- Add Donor -->
+      <section id="tab-add" class="tab">
+        <h2>Manually Add Donor</h2>
+        <form id="manualDonorForm" class="form">
+          <input type="text" placeholder="Full Name" name="name" required />
+          <input type="text" placeholder="Blood Group" name="blood" required />
+          <input type="text" placeholder="District" name="district" required />
+          <input type="text" placeholder="Phone" name="phone" required />
+          <button type="submit">Add Donor</button>
+        </form>
+      </section>
 
-    <h3>Pending Donor Submissions</h3>
-    <ul id="pendingList">Loading...</ul>
+      <!-- Links -->
+      <section id="tab-links" class="tab">
+        <h2>My Public Links</h2>
+        <p><strong>Donor Form:</strong> <span id="formLink">loading...</span> <button onclick="copyLink('formLink')">Copy</button></p>
+        <p><strong>Public Donor Page:</strong> <span id="publicLink">loading...</span> <button onclick="copyLink('publicLink')">Copy</button></p>
+      </section>
 
-    <h3>Approved Donors</h3>
-    <ul id="approvedList">Loading...</ul>
-
-    <button id="logoutBtn" style="margin-top: 1rem;">Logout</button>
+      <!-- Settings -->
+      <section id="tab-settings" class="tab">
+        <h2>Settings</h2>
+        <form id="settingsForm" class="form">
+          <input type="text" placeholder="Change Slug" name="slug" />
+          <button type="submit">Update</button>
+        </form>
+      </section>
+    </main>
   </div>
 
-  <script type="module" src="../js/dashboard.js"></script>
+  <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>
