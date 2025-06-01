@@ -18,6 +18,32 @@
       <button id="updateSlugBtn">Update Slug</button>
     </div>
 
+    <div style="margin-top: 1rem;">
+      <p><strong>Form Link:</strong> <a id="formLink" href="#" target="_blank">Loading...</a></p>
+      <p><strong>Public List:</strong> <a id="listLink" href="#" target="_blank">Loading...</a></p>
+    </div>
+
+    <hr />
+
+    <h3>Manually Add Donor</h3>
+    <form id="manualDonorForm">
+      <input type="text" id="manualName" placeholder="Name" required />
+      <input type="text" id="manualLocation" placeholder="Location" required />
+      <input type="text" id="manualPhone" placeholder="Phone" required />
+      <select id="manualBlood" required>
+        <option value="">Blood Group</option>
+        <option value="A+">A+</option>
+        <option value="A-">A-</option>
+        <option value="B+">B+</option>
+        <option value="B-">B-</option>
+        <option value="O+">O+</option>
+        <option value="O-">O-</option>
+        <option value="AB+">AB+</option>
+        <option value="AB-">AB-</option>
+      </select>
+      <button type="submit">Add Donor</button>
+    </form>
+
     <hr />
 
     <h3>Pending Donor Submissions</h3>
