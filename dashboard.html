@@ -1,0 +1,34 @@
+<!-- public/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div class="form-container">
+    <h2>Admin Dashboard</h2>
+
+    <div id="adminInfo">
+      <p><strong>Admin:</strong> <span id="adminName">Loading...</span></p>
+      <p><strong>Slug:</strong> <span id="adminSlug">Loading...</span></p>
+      <input type="text" id="newSlug" placeholder="Update slug" />
+      <button id="updateSlugBtn">Update Slug</button>
+    </div>
+
+    <hr />
+
+    <h3>Pending Donor Submissions</h3>
+    <ul id="pendingList">Loading...</ul>
+
+    <h3>Approved Donors</h3>
+    <ul id="approvedList">Loading...</ul>
+
+    <button id="logoutBtn" style="margin-top: 1rem;">Logout</button>
+  </div>
+
+  <script type="module" src="../js/dashboard.js"></script>
+</body>
+</html>
