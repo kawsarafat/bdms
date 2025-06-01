@@ -1,182 +1,80 @@
 // js/dashboard.js
-import { auth, db } from "./firebase.js";
-import {
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  onSnapshot,
-  setDoc,
-  addDoc,
-  deleteDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { auth, db, logout, getAdminData, addManualDonor, approveDonor, fetchDonors } from './firebase.js';
 
-// DOM Elements
-const adminName = document.getElementById("adminName");
-const adminSlug = document.getElementById("adminSlug");
-const newSlug = document.getElementById("newSlug");
-const updateSlugBtn = document.getElementById("updateSlugBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const pendingList = document.getElementById("pendingList");
-const approvedList = document.getElementById("approvedList");
-const formLink = document.getElementById("formLink");
-const listLink = document.getElementById("listLink");
+document.addEventListener("DOMContentLoaded", () => {
+  const tabs = document.querySelectorAll(".sidebar-nav li");
+  const sections = document.querySelectorAll(".tab");
 
-const manualForm = document.getElementById("manualDonorForm");
-const manualName = document.getElementById("manualName");
-const manualLocation = document.getElementById("manualLocation");
-const manualPhone = document.getElementById("manualPhone");
-const manualBlood = document.getElementById("manualBlood");
+  // Sidebar Tab Switching
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(`tab-${tab.dataset.tab}`).classList.add("active");
+    });
+  });
 
-let currentUser;
-let userData;
-
-// Auth listener
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await logout();
     window.location.href = "login.html";
-    return;
-  }
-
-  currentUser = user;
-
-  const docRef = doc(db, "users", user.uid);
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-    userData = docSnap.data();
-    adminName.textContent = userData.name;
-    adminSlug.textContent = userData.slug;
-
-    updateLinks(userData.slug);
-    loadPendingDonors();
-    loadApprovedDonors();
-  }
-});
-
-// Update slug
-updateSlugBtn.addEventListener("click", async () => {
-  const newSlugValue = newSlug.value.trim();
-  if (!newSlugValue) return;
-
-  await updateDoc(doc(db, "users", currentUser.uid), {
-    slug: newSlugValue
   });
-  adminSlug.textContent = newSlugValue;
-  updateLinks(newSlugValue);
-  alert("Slug updated!");
-});
 
-// Logout
-logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.href = "login.html";
-});
+  // Load Admin Info
+  auth.onAuthStateChanged(async user => {
+    if (user) {
+      const adminEmail = document.getElementById("adminEmail");
+      adminEmail.textContent = user.email;
+      const adminData = await getAdminData(user.uid);
+      const slug = adminData.slug;
 
-// Generate form and list links
-function updateLinks(slug) {
-  formLink.href = `/public/form.html?admin=${slug}`;
-  formLink.textContent = `${window.location.origin}/form.html?admin=${slug}`;
+      document.getElementById("formLink").textContent = `${window.location.origin}/form.html?slug=${slug}`;
+      document.getElementById("publicLink").textContent = `${window.location.origin}/index.html?slug=${slug}`;
 
-  listLink.href = `/public/u/${slug}.html`;
-  listLink.textContent = `${window.location.origin}/u/${slug}.html`;
-}
-
-// Load pending donors
-function loadPendingDonors() {
-  const q = query(
-    collection(db, "donors"),
-    where("adminUid", "==", currentUser.uid),
-    where("status", "==", "pending")
-  );
-
-  onSnapshot(q, (snapshot) => {
-    pendingList.innerHTML = "";
-    if (snapshot.empty) {
-      pendingList.innerHTML = "<li>No pending donors.</li>";
-      return;
+      // Load donor data
+      fetchDonors(user.uid, true); // approved
+      fetchDonors(user.uid, false); // pending
+    } else {
+      window.location.href = "login.html";
     }
+  });
 
-    snapshot.forEach((docSnap) => {
-      const donor = docSnap.data();
-      const li = document.createElement("li");
-      li.innerHTML = `
-        ${donor.name} (${donor.blood}) 
-        <button onclick="approveDonor('${docSnap.id}')">Approve</button>
-        <button onclick="deleteDonor('${docSnap.id}')">Delete</button>
-      `;
-      pendingList.appendChild(li);
+  // Copy Links
+  window.copyLink = function (id) {
+    const text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Link copied!");
     });
-  });
-}
+  };
 
-// Load approved donors
-function loadApprovedDonors() {
-  const q = query(
-    collection(db, "donors"),
-    where("adminUid", "==", currentUser.uid),
-    where("status", "==", "approved")
-  );
-
-  onSnapshot(q, (snapshot) => {
-    approvedList.innerHTML = "";
-    if (snapshot.empty) {
-      approvedList.innerHTML = "<li>No approved donors.</li>";
-      return;
-    }
-
-    snapshot.forEach((docSnap) => {
-      const donor = docSnap.data();
-      const li = document.createElement("li");
-      li.textContent = `${donor.name} (${donor.blood}) – ${donor.location}`;
-      approvedList.appendChild(li);
-    });
-  });
-}
-
-// Approve donor
-window.approveDonor = async (id) => {
-  await updateDoc(doc(db, "donors", id), {
-    status: "approved"
-  });
-};
-
-// Delete donor
-window.deleteDonor = async (id) => {
-  if (confirm("Are you sure you want to delete this donor?")) {
-    await deleteDoc(doc(db, "donors", id));
-  }
-};
-
-// Manually add donor
-manualForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const name = manualName.value.trim();
-  const phone = manualPhone.value.trim();
-  const location = manualLocation.value.trim();
-  const blood = manualBlood.value;
-
-  if (!name || !phone || !location || !blood) {
-    alert("Please fill all fields");
-    return;
-  }
-
-  await addDoc(collection(db, "donors"), {
-    name,
-    phone,
-    location,
-    blood,
-    adminUid: currentUser.uid,
-    status: "approved"
+  // Manual Donor Form
+  document.getElementById("manualDonorForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const form = e.target;
+    const donor = {
+      name: form.name.value,
+      blood: form.blood.value,
+      district: form.district.value,
+      phone: form.phone.value,
+      approved: true,
+      createdAt: Date.now()
+    };
+    const user = auth.currentUser;
+    await addManualDonor(user.uid, donor);
+    alert("Donor added!");
+    form.reset();
+    fetchDonors(user.uid, true);
   });
 
-  alert("Donor added successfully!");
-  manualForm.reset();
+  // Settings form
+  document.getElementById("settingsForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const slug = e.target.slug.value.trim();
+    if (!slug) return;
+    const user = auth.currentUser;
+    await db.collection("admins").doc(user.uid).update({ slug });
+    alert("Slug updated!");
+    location.reload();
+  });
 });
